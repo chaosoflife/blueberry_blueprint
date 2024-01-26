@@ -1,5 +1,5 @@
 blueprint:
-  name: MQTT Payload for Single Raspberry Pi
+  name: MQTT Payload for Single Raspberry Pi2
   description: Send a test JSON payload to a specified Raspberry Pi via MQTT.
   domain: automation
   input:
