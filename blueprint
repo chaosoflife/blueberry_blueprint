@@ -1,33 +1,30 @@
 blueprint:
-  name: MQTT Payload for Single Raspberry Pi2
-  description: Send a test JSON payload to a specified Raspberry Pi via MQTT.
+  name: MQTT JSON Message Sender
+  description: Sends a user-defined JSON MQTT message on a specific action.
   domain: automation
   input:
-    trigger:
-      name: Trigger
-      description: Define the trigger for the automation.
+    trigger_entity:
+      name: Trigger Entity
       selector:
-        trigger:
-    test_hostname:
-      name: Raspberry Pi Hostname
-      description: Enter the hostname of the Raspberry Pi (e.g., blueberry01).
+        entity: {}
+    json_payload:
+      name: JSON Payload
+      description: JSON data to send as payload.
       selector:
-        text:
-    test_payload:
-      name: Test Payload
-      description: Enter the test JSON payload.
-      default: '{"test": "payload"}'
+        text: {}
+    mqtt_topic:
+      name: MQTT Topic
+      default: "home/+/action"
       selector:
-        text:
+        text: {}
 
-trigger: !input 'trigger'
+trigger:
+  platform: state
+  entity_id: !input trigger_entity
 
 action:
-  - service: system_log.write
-    data_template:
-      message: "Debug - Hostname: {{ test_hostname | trim }}"
-      level: warning
   - service: mqtt.publish
-    data_template:
-      topic: "home/{{ test_hostname | trim }}/action"
-      payload: "{{ test_payload }}"
+    data:
+      topic: !input mqtt_topic
+      payload: !input json_payload
+      retain: false
