@@ -1,0 +1,34 @@
+blueprint:
+  name: Raspberry Pi Command
+  description: Send a command to a specific Raspberry Pi or all Raspberry Pis.
+  domain: automation
+  input:
+    trigger:
+      name: Trigger
+      description: Define the trigger for the automation.
+      selector:
+        trigger:
+    raspberry_pi_hostname:
+      name: Raspberry Pi Hostname
+      description: Enter the hostname of the Raspberry Pi (e.g., blueberry01). Use 'blueberry' to target all.
+      selector:
+        text:
+    payload:
+      name: Payload
+      description: The payload to send (in JSON format).
+      selector:
+        text:
+
+trigger: !input 'trigger'
+
+action:
+  - service: mqtt.publish
+    data_template:
+      topic: >
+        {% set hostname = raspberry_pi_hostname | lower %}
+        {% if hostname == 'blueberry' %}
+          home/+/action
+        {% else %}
+          home/{{ hostname }}/action
+        {% endif %}
+      payload: !input 'payload'
