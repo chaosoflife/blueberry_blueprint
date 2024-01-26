@@ -39,6 +39,7 @@ action:
         {% endif %}
       payload: >
         {% set action_val = action | lower %}
-        {% set additional_params = additional_parameters | from_json %}
-        {% set payload_dict = {'action': action_val} | combine(additional_params) %}
+        {% set additional_params = '{}'
+           if additional_parameters == '' else '{' + additional_parameters + '}' %}
+        {% set payload_dict = {'action': action_val} | combine(additional_params | from_json) %}
         {{ payload_dict | tojson }}
