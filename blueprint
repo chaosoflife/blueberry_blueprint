@@ -1,6 +1,6 @@
 blueprint:
-  name: MQTT Payload for Single Raspberry Pi with Debug
-  description: Send a test JSON payload to a specified Raspberry Pi via MQTT, with debugging.
+  name: MQTT Payload for Single Raspberry Pi
+  description: Send a test JSON payload to a specified Raspberry Pi via MQTT.
   domain: automation
   input:
     trigger:
@@ -17,13 +17,11 @@ blueprint:
 trigger: !input 'trigger'
 
 action:
-  - variables:
-      debug_hostname: "{{ hostname | trim }}"
   - service: system_log.write
-    data:
-      message: "Debug - Hostname: {{ debug_hostname }}"
+    data_template:
+      message: "Debug - Hostname: {{ hostname | trim }}"
       level: warning
   - service: mqtt.publish
     data_template:
-      topic: "home/{{ debug_hostname }}/action"
+      topic: "home/{{ hostname | trim }}/action"
       payload: '{"test": "payload"}'
