@@ -1,6 +1,6 @@
 blueprint:
-  name: Raspberry Pi Command with JSON Payload
-  description: Send a JSON payload to a specific Raspberry Pi or broadcast to all.
+  name: Custom MQTT Payload for Multiple Raspberry Pis
+  description: Send a JSON payload to multiple specified Raspberry Pis via MQTT.
   domain: automation
   input:
     trigger:
@@ -8,32 +8,26 @@ blueprint:
       description: Define the trigger for the automation.
       selector:
         trigger:
-    individual_hostname:
-      name: Individual Raspberry Pi Hostname
-      description: Enter the hostname of a specific Raspberry Pi (e.g., blueberry01). Leave empty to broadcast to all.
-      default: ""
+    hostnames:
+      name: Hostnames
+      description: Enter comma-separated hostnames (e.g., blueberry01,blueberry02). Each hostname will get the payload.
       selector:
         text:
-    broadcast:
-      name: Broadcast to All
-      description: Check to send to all Raspberry Pis. If checked, the individual hostname is ignored.
-      selector:
-        boolean:
     payload:
       name: JSON Payload
-      description: The entire payload in JSON format.
+      description: The JSON payload to send.
       selector:
         text:
 
 trigger: !input 'trigger'
 
 action:
-  - service: mqtt.publish
-    data_template:
-      topic: >
-        {% if broadcast %}
-          home/+/action
-        {% else %}
-          home/{{ individual_hostname | lower }}/action
-        {% endif %}
-      payload: "{{ payload }}"
+  - variables:
+      hostname_list: "{{ hostnames.split(',') }}"
+  - repeat:
+      count: "{{ hostname_list | length }}"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "home/{{ hostname_list[repeat.index] | trim }}/action"
+            payload: "{{ payload }}"
