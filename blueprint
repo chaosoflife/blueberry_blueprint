@@ -1,5 +1,5 @@
 blueprint:
-  name: MQTT JSON Message Sender2
+  name: MQTT JSON Message Sender22
   description: Sends a user-defined JSON MQTT message on a specified trigger.
   domain: automation
   input:
