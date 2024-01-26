@@ -10,7 +10,7 @@ blueprint:
         trigger:
     hostnames:
       name: Hostnames
-      description: Enter comma-separated hostnames (e.g., blueberry01,blueberry02). Each hostname will get the payload.
+      description: Enter comma-separated hostnames (e.g., blueberry01, blueberry02). Each hostname will get the payload.
       selector:
         text:
     payload:
@@ -28,6 +28,12 @@ action:
       count: "{{ hostname_list | length }}"
       sequence:
         - service: mqtt.publish
-          data:
-            topic: "home/{{ hostname_list[repeat.index] | trim }}/action"
+          data_template:
+            topic: >
+              {% set hostname = hostname_list[repeat.index] | trim %}
+              {% if hostname %}
+                home/{{ hostname }}/action
+              {% else %}
+                home/+/action
+              {% endif %}
             payload: "{{ payload }}"
