@@ -8,9 +8,15 @@ blueprint:
       description: Define the trigger for the automation.
       selector:
         trigger:
-    hostname:
+    test_hostname:
       name: Raspberry Pi Hostname
       description: Enter the hostname of the Raspberry Pi (e.g., blueberry01).
+      selector:
+        text:
+    test_payload:
+      name: Test Payload
+      description: Enter the test JSON payload.
+      default: '{"test": "payload"}'
       selector:
         text:
 
@@ -19,9 +25,9 @@ trigger: !input 'trigger'
 action:
   - service: system_log.write
     data_template:
-      message: "Debug - Hostname: {{ hostname | trim }}"
+      message: "Debug - Hostname: {{ test_hostname | trim }}"
       level: warning
   - service: mqtt.publish
     data_template:
-      topic: "home/{{ hostname | trim }}/action"
-      payload: '{"test": "payload"}'
+      topic: "home/{{ test_hostname | trim }}/action"
+      payload: "{{ test_payload }}"
