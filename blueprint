@@ -1,6 +1,6 @@
 blueprint:
-  name: Raspberry Pi Command with Direct JSON Payload
-  description: Send a command with a direct JSON payload to a specific Raspberry Pi or all Raspberry Pis.
+  name: Raspberry Pi Command with JSON Payload
+  description: Send a JSON payload to a specific Raspberry Pi or broadcast to all.
   domain: automation
   input:
     trigger:
@@ -8,12 +8,17 @@ blueprint:
       description: Define the trigger for the automation.
       selector:
         trigger:
-    raspberry_pi_hostname:
-      name: Raspberry Pi Hostname
-      description: Enter the hostname of the Raspberry Pi (e.g., blueberry01). Use 'blueberry' to target all. Leave blank to target all.
+    individual_hostname:
+      name: Individual Raspberry Pi Hostname
+      description: Enter the hostname of a specific Raspberry Pi (e.g., blueberry01). Leave empty to broadcast to all.
       default: ""
       selector:
         text:
+    broadcast:
+      name: Broadcast to All
+      description: Check to send to all Raspberry Pis. If checked, the individual hostname is ignored.
+      selector:
+        boolean:
     payload:
       name: JSON Payload
       description: The entire payload in JSON format.
@@ -26,10 +31,9 @@ action:
   - service: mqtt.publish
     data_template:
       topic: >
-        {% set hostname = raspberry_pi_hostname | lower %}
-        {% if hostname == '' or hostname == 'blueberry' %}
+        {% if broadcast %}
           home/+/action
         {% else %}
-          home/{{ hostname }}/action
+          home/{{ individual_hostname | lower }}/action
         {% endif %}
       payload: "{{ payload }}"
