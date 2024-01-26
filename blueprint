@@ -1,12 +1,13 @@
 blueprint:
   name: MQTT JSON Message Sender
-  description: Sends a user-defined JSON MQTT message on a specific action.
+  description: Sends a user-defined JSON MQTT message on a specified trigger.
   domain: automation
   input:
-    trigger_entity:
-      name: Trigger Entity
+    trigger:
+      name: Trigger
+      description: Define the trigger for the automation.
       selector:
-        entity: {}
+        trigger: {}
     json_payload:
       name: JSON Payload
       description: JSON data to send as payload.
@@ -18,9 +19,7 @@ blueprint:
       selector:
         text: {}
 
-trigger:
-  platform: state
-  entity_id: !input trigger_entity
+trigger: !input trigger
 
 action:
   - service: mqtt.publish
