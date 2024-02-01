@@ -3,10 +3,10 @@ blueprint:
   description: Sends MQTT messages to specified Blueberry computers with action and parameters.
   domain: automation
   input:
-    trigger:
+    custom_trigger:
       name: Trigger
       description: The trigger for this automation.
-      trigger:
+      trigger: {}
     blueberry_name:
       name: Blueberry Name
       description: "Enter 'blueberry' for all or specify comma-separated names (e.g., blueberry01, blueberry02)."
@@ -23,29 +23,7 @@ blueprint:
       selector:
         text:
           multiline: true
-  
 
-trigger: !input trigger
-variables:
-  blueberry_names: >-
-    {% if blueberry_name == 'blueberry' %}
-    {% set ns = namespace(numbers=[]) %}
-    {% for i in range(1, 100) %}
-    {% set ns.numbers = ns.numbers + ['blueberry%02d' | format(i)] %}
-    {% endfor %}
-    {{ ns.numbers }}
-    {% else %}
-    {{ blueberry_name.split(',') }}
-    {% endif %}
-  action_json: >-
-    {
-      "action": "{{ action_field }}",
-      {% set params = additional_params.split('\n') %}
-      {% for param in params %}
-      "{{ param.split(':')[0] }}": "{{ param.split(':')[1] }}"{% if not loop.last %},{% endif %}
-      {% endfor %}
-    }
-    
 action:
   - variables:
       blueberry_list: "{{ blueberry_name.split(',') }}"
@@ -65,7 +43,7 @@ action:
                     payload: >
                       {%
                         set payload = {'action': action_field} |
-                        update(additional_params | from_json | default({}))
+                        merge(additional_params | from_json | default({}))
                       %}
                       {{ payload | tojson }}
       - conditions: "{{ 'blueberry' not in blueberry_name }}"
@@ -75,10 +53,10 @@ action:
               sequence:
                 - service: mqtt.publish
                   data:
-                    topic: "{{ base_topic ~ repeat.item ~ action_topic }}"
+                    topic: "{{ base_topic ~ repeat.item.strip() ~ action_topic }}"
                     payload: >
                       {%
                         set payload = {'action': action_field} |
-                        update(additional_params | from_json | default({}))
+                        merge(additional_params | from_json | default({}))
                       %}
                       {{ payload | tojson }}
