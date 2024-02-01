@@ -1,5 +1,5 @@
 blueprint:
-  name: Blueberry MQTT Control
+  name: Blueberry MQTT Control2
   description: Sends MQTT messages to specified Blueberry computers with action and parameters.
   domain: automation
   input:
@@ -40,9 +40,9 @@ action:
       - conditions: "{{ 'blueberry' not in blueberry_name }}"
         sequence:
           - repeat:
-              foreach: "{{ blueberry_list }}"
+              for_each: "{{ blueberry_list }}"
               sequence:
                 - service: mqtt.publish
                   data:
-                    topic: "{{ base_topic ~ repeat.item.strip() ~ action_topic }}"
+                    topic: "{{ base_topic ~ repeat.value.strip() ~ action_topic }}"
                     payload: "{{ json_payload }}"
