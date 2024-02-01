@@ -3,7 +3,7 @@ blueprint:
   description: Sends MQTT messages to specified Blueberry computers with action and parameters.
   domain: automation
   input:
-    custom_trigger:
+    trigger:
       name: Trigger
       description: The trigger for this automation.
       trigger:
@@ -23,7 +23,29 @@ blueprint:
       selector:
         text:
           multiline: true
-          
+  
+
+trigger: !input trigger
+variables:
+  blueberry_names: >-
+    {% if blueberry_name == 'blueberry' %}
+    {% set ns = namespace(numbers=[]) %}
+    {% for i in range(1, 100) %}
+    {% set ns.numbers = ns.numbers + ['blueberry%02d' | format(i)] %}
+    {% endfor %}
+    {{ ns.numbers }}
+    {% else %}
+    {{ blueberry_name.split(',') }}
+    {% endif %}
+  action_json: >-
+    {
+      "action": "{{ action_field }}",
+      {% set params = additional_params.split('\n') %}
+      {% for param in params %}
+      "{{ param.split(':')[0] }}": "{{ param.split(':')[1] }}"{% if not loop.last %},{% endif %}
+      {% endfor %}
+    }
+    
 action:
   - variables:
       blueberry_list: "{{ blueberry_name.split(',') }}"
