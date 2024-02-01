@@ -1,5 +1,5 @@
 blueprint:
-  name: Blueberry MQTT Control2
+  name: Blueberry MQTT Control3
   description: Sends MQTT messages to specified Blueberry computers with action and parameters.
   domain: automation
   input:
