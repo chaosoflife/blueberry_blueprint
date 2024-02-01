@@ -6,7 +6,8 @@ blueprint:
     custom_trigger:
       name: Trigger
       description: The trigger for this automation.
-      trigger: {}
+      selector:
+        trigger: {}
     blueberry_name:
       name: Blueberry Name
       description: "Enter 'blueberry' for all or specify comma-separated names (e.g., blueberry01, blueberry02)."
