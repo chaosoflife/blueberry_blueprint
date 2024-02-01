@@ -24,38 +24,38 @@ blueprint:
         text:
           multiline: true
   action:
-  - variables:
-      blueberry_list: "{{ blueberry_name.split(',') }}"
-      base_topic: "home/"
-      action_topic: "/action"
-  - choose:
-      - conditions: "{{ 'blueberry' in blueberry_name }}"
-        sequence:
-          - repeat:
-              count: "{{ range(1, 99) | length }}"
-              sequence:
-                - variables:
-                    current_blueberry: "blueberry{{ '%02d' | format(repeat.index) }}"
-                - service: mqtt.publish
-                  data:
-                    topic: "{{ base_topic ~ current_blueberry ~ action_topic }}"
-                    payload: >
-                      {%
-                        set payload = {'action': action_field} |
-                        update(additional_params | from_json | default({}))
-                      %}
-                      {{ payload | tojson }}
-      - conditions: "{{ 'blueberry' not in blueberry_name }}"
-        sequence:
-          - repeat:
-              foreach: "{{ blueberry_list }}"
-              sequence:
-                - service: mqtt.publish
-                  data:
-                    topic: "{{ base_topic ~ repeat.item ~ action_topic }}"
-                    payload: >
-                      {%
-                        set payload = {'action': action_field} |
-                        update(additional_params | from_json | default({}))
-                      %}
-                      {{ payload | tojson }}
+      - variables:
+          blueberry_list: "{{ blueberry_name.split(',') }}"
+          base_topic: "home/"
+          action_topic: "/action"
+      - choose:
+          - conditions: "{{ 'blueberry' in blueberry_name }}"
+            sequence:
+              - repeat:
+                  count: "{{ range(1, 99) | length }}"
+                  sequence:
+                    - variables:
+                        current_blueberry: "blueberry{{ '%02d' | format(repeat.index) }}"
+                    - service: mqtt.publish
+                      data:
+                        topic: "{{ base_topic ~ current_blueberry ~ action_topic }}"
+                        payload: >
+                          {%
+                            set payload = {'action': action_field} |
+                            update(additional_params | from_json | default({}))
+                          %}
+                          {{ payload | tojson }}
+          - conditions: "{{ 'blueberry' not in blueberry_name }}"
+            sequence:
+              - repeat:
+                  foreach: "{{ blueberry_list }}"
+                  sequence:
+                    - service: mqtt.publish
+                      data:
+                        topic: "{{ base_topic ~ repeat.item ~ action_topic }}"
+                        payload: >
+                          {%
+                            set payload = {'action': action_field} |
+                            update(additional_params | from_json | default({}))
+                          %}
+                          {{ payload | tojson }}
