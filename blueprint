@@ -17,8 +17,11 @@ blueprint:
       name: JSON Payload
       description: The JSON string to be sent as the payload.
       selector:
-        text:
-          multiline: true
+        text: {}
+
+trigger:
+  - platform: event
+    event_type: blueberry_command
 
 action:
   - variables:
